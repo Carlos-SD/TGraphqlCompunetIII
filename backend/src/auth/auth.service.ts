@@ -36,7 +36,7 @@ export class AuthService {
       delete user.password;
 
       return {
-        ...user,
+        user,
         token: this.getJwtToken({ id: user.id, username: user.username, roles: user.roles }),
       };
     } catch (error) {
@@ -74,7 +74,7 @@ export class AuthService {
     delete user.password;
 
     return {
-      ...user,
+      user,
       token: this.getJwtToken({ id: user.id, username: user.username, roles: user.roles }),
     };
   }

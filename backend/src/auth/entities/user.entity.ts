@@ -9,10 +9,13 @@ import {
   BeforeUpdate
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { Bet } from '../../bets/entities/bet.entity';
 
+@ObjectType()
 @Entity('users')
 export class User {
+  @Field(() => ID, { description: 'ID único del usuario' })
   @ApiProperty({
     description: 'ID único del usuario',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -20,6 +23,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field(() => String, { description: 'Nombre de usuario único' })
   @ApiProperty({
     description: 'Nombre de usuario único',
     example: 'john_doe',
@@ -32,6 +36,7 @@ export class User {
   })
   username: string;
 
+  @Field(() => Number, { description: 'Balance de la cuenta del usuario' })
   @ApiProperty({
     description: 'Balance de la cuenta del usuario',
     example: 10000.50,
@@ -56,6 +61,7 @@ export class User {
   })
   password?: string;
 
+  @Field(() => [String], { description: 'Roles del usuario en el sistema' })
   @ApiProperty({
     description: 'Roles del usuario en el sistema',
     example: ['user'],
@@ -69,6 +75,7 @@ export class User {
   })
   roles: string[];
 
+  @Field(() => Boolean, { description: 'Estado de activación del usuario' })
   @ApiProperty({
     description: 'Estado de activación del usuario',
     example: true,
@@ -80,6 +87,7 @@ export class User {
   })
   isActive: boolean;
 
+  @Field(() => Date, { description: 'Fecha de creación del usuario' })
   @ApiProperty({
     description: 'Fecha de creación del usuario',
     example: '2024-01-15T10:30:00Z',
@@ -87,6 +95,7 @@ export class User {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field(() => Date, { description: 'Fecha de última actualización del usuario' })
   @ApiProperty({
     description: 'Fecha de última actualización del usuario',
     example: '2024-01-20T15:45:00Z',

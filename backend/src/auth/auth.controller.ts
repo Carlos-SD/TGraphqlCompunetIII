@@ -19,7 +19,11 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   @ApiResponse({ status: 409, description: 'Usuario ya existe.' })
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+    const result = await this.authService.register(registerDto);
+    return {
+      ...result.user,
+      token: result.token,
+    };
   }
 
   @Post('login')
@@ -28,7 +32,11 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login exitoso, retorna token JWT.' })
   @ApiResponse({ status: 401, description: 'Credenciales inválidas.' })
   async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+    const result = await this.authService.login(loginDto);
+    return {
+      ...result.user,
+      token: result.token,
+    };
   }
 
   @Get('profile')
