@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { BetsService } from './bets.service';
 import { Bet } from './entities/bet.entity';
-import { CreateBetInput } from './dto/create-bet.input';
+import { CreateBetInput } from './inputs/create-bet.input';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { GqlRolesGuard } from '../auth/guards/gql-roles.guard';
 import { RoleProtected } from '../auth/decorators/role-protected.decorator';
@@ -12,7 +12,7 @@ import { User } from '../auth/entities/user.entity';
 
 @Resolver(() => Bet)
 export class BetsResolver {
-  constructor(private readonly betsService: BetsService) {}
+  constructor(private readonly betsService: BetsService) { }
 
   @Mutation(() => Bet, { description: 'Crear una nueva apuesta' })
   @UseGuards(GqlAuthGuard)
@@ -22,13 +22,8 @@ export class BetsResolver {
   ): Promise<Bet> {
     // El usuario autenticado realiza la apuesta automáticamente
     // Se ignora el userId del input y se usa el del token JWT
-    const createBetDto = {
-      userId: user.id,
-      eventId: createBetInput.eventId,
-      selectedOption: createBetInput.selectedOption,
-      amount: createBetInput.amount,
-    };
-    return this.betsService.create(createBetDto);
+    createBetInput.userId = user.id;
+    return this.betsService.create(createBetInput);
   }
 
   @Query(() => [Bet], { name: 'bets', description: 'Obtener todas las apuestas (Solo Admin)' })

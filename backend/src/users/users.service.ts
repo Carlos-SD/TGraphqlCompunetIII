@@ -1,16 +1,16 @@
-import { 
-  Injectable, 
-  NotFoundException, 
+import {
+  Injectable,
+  NotFoundException,
   BadRequestException,
-  ConflictException 
+  ConflictException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../auth/entities/user.entity';
 import { Bet } from '../bets/entities/bet.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserInput } from './inputs/create-user.input';
+import { UpdateUserInput } from './inputs/update-user.input';
 
 @Injectable()
 export class UsersService {
@@ -19,27 +19,27 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Bet)
     private readonly betRepository: Repository<Bet>,
-  ) {}
+  ) { }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserInput: CreateUserInput): Promise<User> {
     try {
       const existingUser = await this.userRepository.findOne({
-        where: { username: createUserDto.username },
+        where: { username: createUserInput.username },
       });
 
       if (existingUser) {
-        throw new ConflictException(`El nombre de usuario '${createUserDto.username}' ya está en uso`);
+        throw new ConflictException(`El nombre de usuario '${createUserInput.username}' ya está en uso`);
       }
 
       // Hash password
       const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(createUserDto.password, saltRounds);
+      const hashedPassword = await bcrypt.hash(createUserInput.password, saltRounds);
 
       const user = this.userRepository.create({
-        username: createUserDto.username,
+        username: createUserInput.username,
         password: hashedPassword,
-        roles: createUserDto.roles ?? ['user'],
-        balance: createUserDto.balance ?? 10000,
+        roles: createUserInput.roles ?? ['user'],
+        balance: createUserInput.balance ?? 10000,
       });
 
       return await this.userRepository.save(user);
@@ -84,43 +84,43 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserInput: UpdateUserInput): Promise<User> {
     const user = await this.findOne(id);
 
-    if (updateUserDto.username) {
+    if (updateUserInput.username) {
       const existingUser = await this.userRepository.findOne({
-        where: { username: updateUserDto.username },
+        where: { username: updateUserInput.username },
       });
 
       if (existingUser && existingUser.id !== id) {
-        throw new ConflictException(`El nombre de usuario '${updateUserDto.username}' ya está en uso`);
+        throw new ConflictException(`El nombre de usuario '${updateUserInput.username}' ya está en uso`);
       }
     }
 
-    Object.assign(user, updateUserDto);
+    Object.assign(user, updateUserInput);
     return await this.userRepository.save(user);
   }
 
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
-    
+
     // Eliminar todas las apuestas del usuario primero
     await this.betRepository.delete({ userId: id });
-    
+
     // Ahora eliminar el usuario
     await this.userRepository.remove(user);
   }
 
   async updateBalance(id: string, amount: number): Promise<User> {
     const user = await this.findOne(id);
-    
+
     if (user.balance + amount < 0) {
       throw new BadRequestException('Saldo insuficiente');
     }
 
     const oldBalance = Number(user.balance);
     user.balance = oldBalance + amount;
-    
+
     return await this.userRepository.save(user);
   }
 

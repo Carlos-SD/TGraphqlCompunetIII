@@ -1,0 +1,646 @@
+{
+    "info": {
+        "_postman_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+        "name": "Sports Bet GraphQL",
+        "description": "Colección completa de pruebas GraphQL para Sports Bet System",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Seed",
+            "item": [
+                {
+                    "name": "Clear Database",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation ClearDatabase {\n  clearDatabase {\n    message\n  }\n}",
+                                "variables": "{}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Execute Seed",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Seed executed', () => {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.expect(response.data.executeSeed.message).to.exist;",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation ExecuteSeed {\n  executeSeed {\n    message\n  }\n}",
+                                "variables": "{}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Login Admin",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.login) {",
+                                    "    pm.environment.set('adminToken', response.data.login.token);",
+                                    "    pm.test('Admin login successful', () => {",
+                                    "        pm.expect(response.data.login.token).to.exist;",
+                                    "    });",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    user {\n      id\n      username\n      roles\n    }\n    token\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login User1",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.login) {",
+                                    "    pm.environment.set('token', response.data.login.token);",
+                                    "    pm.environment.set('userId', response.data.login.user.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation Login($input: LoginInput!) {\n  login(input: $input) {\n    user {\n      id\n      username\n    }\n    token\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"username\": \"usuario1\",\n    \"password\": \"password123\"\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register New User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.register) {",
+                                    "    pm.environment.set('newUserToken', response.data.register.token);",
+                                    "    pm.environment.set('newUserId', response.data.register.user.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation Register($input: RegisterInput!) {\n  register(input: $input) {\n    user {\n      id\n      username\n    }\n    token\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"username\": \"user_{{$timestamp}}\",\n    \"password\": \"password123\"\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Get All Users (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "query Users {\n  users {\n    id\n    username\n    roles\n    balance\n  }\n}",
+                                "variables": "{}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "query User($id: ID!) {\n  user(id: $id) {\n    id\n    username\n    balance\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{userId}}\"\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create User (Admin)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.createUser) {",
+                                    "    pm.environment.set('createdUserId', response.data.createUser.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation CreateUser($input: CreateUserInput!) {\n  createUser(createUserInput: $input) {\n    id\n    username\n    balance\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"username\": \"newuser_{{$randomInt}}\",\n    \"password\": \"password123\",\n    \"roles\": [\"user\"],\n    \"balance\": 5000\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {\n  updateUser(id: $id, updateUserInput: $input) {\n    id\n    balance\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{userId}}\",\n  \"input\": {\n    \"balance\": 20000\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete User (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation RemoveUser($id: ID!) {\n  removeUser(id: $id) {\n    id\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{createdUserId}}\"\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Events",
+            "item": [
+                {
+                    "name": "Get All Events",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.events) {",
+                                    "    const events = response.data.events;",
+                                    "    if (events.length > 0) {",
+                                    "        pm.environment.set('eventId', events[0].id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "query Events {\n  events {\n    id\n    name\n    status\n    options {\n      name\n      odds\n    }\n  }\n}",
+                                "variables": "{}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Open Events",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "query OpenEvents {\n  eventsOpen {\n    id\n    name\n    status\n  }\n}",
+                                "variables": "{}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Event (Admin)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.createEvent) {",
+                                    "    pm.environment.set('newEventId', response.data.createEvent.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation CreateEvent($input: CreateEventInput!) {\n  createEvent(createEventInput: $input) {\n    id\n    name\n    status\n    options {\n      name\n      odds\n    }\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"name\": \"Partido Test {{$timestamp}}\",\n    \"description\": \"Evento de prueba\",\n    \"options\": [\n      { \"name\": \"Equipo A\", \"odds\": 2.5 },\n      { \"name\": \"Empate\", \"odds\": 3.0 },\n      { \"name\": \"Equipo B\", \"odds\": 2.2 }\n    ]\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Event (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation UpdateEvent($id: ID!, $input: UpdateEventInput!) {\n  updateEvent(id: $id, updateEventInput: $input) {\n    id\n    description\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{newEventId}}\",\n  \"input\": {\n    \"description\": \"Descripción actualizada\"\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Close Event (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation CloseEvent($id: ID!, $input: CloseEventInput!) {\n  closeEvent(id: $id, closeEventInput: $input) {\n    id\n    status\n    finalResult\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{newEventId}}\",\n  \"input\": {\n    \"finalResult\": \"Equipo A\"\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Event (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation RemoveEvent($id: ID!) {\n  removeEvent(id: $id)\n}",
+                                "variables": "{\n  \"id\": \"{{newEventId}}\"\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Bets",
+            "item": [
+                {
+                    "name": "Create Test Event for Bets (Admin)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.createEvent) {",
+                                    "    pm.environment.set('testEventId', response.data.createEvent.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation CreateEvent($input: CreateEventInput!) {\n  createEvent(createEventInput: $input) {\n    id\n    name\n    status\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"name\": \"Test Bet Flow {{$timestamp}}\",\n    \"description\": \"Evento de prueba para apuestas\",\n    \"options\": [\n      { \"name\": \"Opción Ganadora\", \"odds\": 2.5 },\n      { \"name\": \"Opción Perdedora\", \"odds\": 3.0 }\n    ]\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Bet",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "if (response.data && response.data.createBet) {",
+                                    "    pm.environment.set('testBetId', response.data.createBet.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "mutation CreateBet($input: CreateBetInput!) {\n  createBet(createBetInput: $input) {\n    id\n    amount\n    selectedOption\n    status\n  }\n}",
+                                "variables": "{\n  \"input\": {\n    \"eventId\": \"{{testEventId}}\",\n    \"selectedOption\": \"Opción Ganadora\",\n    \"amount\": 500\n  }\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Bet by ID",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "graphql",
+                            "graphql": {
+                                "query": "query Bet($id: ID!) {\n  bet(id: $id) {\n    id\n    amount\n    status\n    selectedOption\n  }\n}",
+                                "variables": "{\n  \"id\": \"{{testBetId}}\"\n}"
+                            }
+                        },
+                        "url": {
+                            "raw": "{{url_graphql}}",
+                            "host": [
+                                "{{url_graphql}}"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}

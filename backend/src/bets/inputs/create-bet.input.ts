@@ -1,8 +1,11 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsUUID, IsNumber, Min, IsString, IsNotEmpty } from 'class-validator';
+import { IsUUID, IsNumber, Min, IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateBetInput {
+  @Field(() => String, { description: 'ID del usuario (interno)', nullable: true })
+  @IsOptional()
+  userId?: string;
   @Field(() => String, { description: 'UUID del evento sobre el que se apuesta' })
   @IsUUID()
   eventId: string;

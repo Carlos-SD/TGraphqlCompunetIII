@@ -2,9 +2,9 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards, ParseUUIDPipe } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
-import { CreateEventInput } from './dto/create-event.input';
-import { UpdateEventInput } from './dto/update-event.input';
-import { CloseEventInput } from './dto/close-event.input';
+import { CreateEventInput } from './inputs/create-event.input';
+import { UpdateEventInput } from './inputs/update-event.input';
+import { CloseEventInput } from './inputs/close-event.input';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { GqlRolesGuard } from '../auth/guards/gql-roles.guard';
 import { RoleProtected } from '../auth/decorators/role-protected.decorator';
@@ -12,7 +12,7 @@ import { ValidRoles } from '../auth/enums/roles.enum';
 
 @Resolver(() => Event)
 export class EventsResolver {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
   @Mutation(() => Event, { description: 'Crear un nuevo evento (Solo Admin)' })
   @UseGuards(GqlAuthGuard, GqlRolesGuard)

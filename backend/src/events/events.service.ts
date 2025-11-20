@@ -1,6 +1,6 @@
-import { 
-  Injectable, 
-  NotFoundException, 
+import {
+  Injectable,
+  NotFoundException,
   BadRequestException,
   Inject,
   forwardRef,
@@ -9,9 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event, EventStatus } from './entities/event.entity';
 import { EventOption } from './entities/event-option.entity';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { CloseEventDto } from './dto/close-event.dto';
+import { CreateEventInput } from './inputs/create-event.input';
+import { UpdateEventInput } from './inputs/update-event.input';
+import { CloseEventInput } from './inputs/close-event.input';
 import { BetsService } from '../bets/bets.service';
 import { BetStatus } from '../bets/entities/bet.entity';
 import { UsersService } from '../users/users.service';
@@ -26,18 +26,18 @@ export class EventsService {
     @Inject(forwardRef(() => BetsService))
     private readonly betsService: BetsService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
-  async create(createEventDto: CreateEventDto): Promise<Event> {
+  async create(createEventInput: CreateEventInput): Promise<Event> {
     const event = this.eventRepository.create({
-      name: createEventDto.name,
-      description: createEventDto.description,
+      name: createEventInput.name,
+      description: createEventInput.description,
       status: EventStatus.OPEN,
     });
 
     const savedEvent = await this.eventRepository.save(event);
 
-    const options = createEventDto.options.map((optionDto) =>
+    const options = createEventInput.options.map((optionDto) =>
       this.eventOptionRepository.create({
         name: optionDto.name,
         odds: optionDto.odds,
@@ -101,7 +101,7 @@ export class EventsService {
     return event;
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto): Promise<Event> {
+  async update(id: string, updateEventInput: UpdateEventInput): Promise<Event> {
     const event = await this.findOne(id);
 
     if (event.status === EventStatus.CLOSED) {
@@ -109,42 +109,42 @@ export class EventsService {
     }
 
     // Solo se puede modificar nombre del evento y nombre de opciones (NO cuotas)
-    if (updateEventDto.name) {
-      event.name = updateEventDto.name;
+    if (updateEventInput.name) {
+      event.name = updateEventInput.name;
     }
-    
-    if (updateEventDto.description !== undefined) {
-      event.description = updateEventDto.description;
+
+    if (updateEventInput.description !== undefined) {
+      event.description = updateEventInput.description;
     }
 
     // Actualizar nombres de opciones (pero no las cuotas)
-    if (updateEventDto.options && updateEventDto.options.length > 0) {
+    if (updateEventInput.options && updateEventInput.options.length > 0) {
       // PASO 1: Crear un mapa de cambios (oldName → newName) SIN modificar el array todavía
       const nameChanges = new Map<string, string>();
-      for (let i = 0; i < event.options.length && i < updateEventDto.options.length; i++) {
+      for (let i = 0; i < event.options.length && i < updateEventInput.options.length; i++) {
         const oldName = event.options[i].name;
-        const newName = updateEventDto.options[i].name;
-        
+        const newName = updateEventInput.options[i].name;
+
         if (newName && newName !== oldName) {
           nameChanges.set(oldName, newName);
         }
       }
-      
+
       // PASO 2: Actualizar las opciones del evento
-      for (let i = 0; i < event.options.length && i < updateEventDto.options.length; i++) {
+      for (let i = 0; i < event.options.length && i < updateEventInput.options.length; i++) {
         const oldName = event.options[i].name;
-        const newName = updateEventDto.options[i].name;
-        
+        const newName = updateEventInput.options[i].name;
+
         if (newName && newName !== oldName) {
           event.options[i].name = newName;
         }
       }
       await this.eventOptionRepository.save(event.options);
-      
+
       // PASO 3: Actualizar todas las apuestas pendientes usando el mapa de cambios
       if (nameChanges.size > 0) {
         const bets = await this.betsService.findByEvent(id);
-        
+
         for (const bet of bets) {
           if (bet.status === BetStatus.PENDING && nameChanges.has(bet.selectedOption)) {
             const newName = nameChanges.get(bet.selectedOption)!;
@@ -181,7 +181,7 @@ export class EventsService {
     await this.eventRepository.remove(event);
   }
 
-  async closeEvent(id: string, closeEventDto: CloseEventDto): Promise<Event> {
+  async closeEvent(id: string, closeEventInput: CloseEventInput): Promise<Event> {
     const event = await this.findOne(id);
 
     if (event.status === EventStatus.CLOSED) {
@@ -189,17 +189,17 @@ export class EventsService {
     }
 
     const optionExists = event.options.some(
-      (option) => option.name === closeEventDto.finalResult,
+      (option) => option.name === closeEventInput.finalResult,
     );
 
     if (!optionExists) {
       throw new BadRequestException(
-        `El resultado '${closeEventDto.finalResult}' no es una opción válida para este evento`,
+        `El resultado '${closeEventInput.finalResult}' no es una opción válida para este evento`,
       );
     }
 
     event.status = EventStatus.CLOSED;
-    event.finalResult = closeEventDto.finalResult;
+    event.finalResult = closeEventInput.finalResult;
 
     const savedEvent = await this.eventRepository.save(event);
 

@@ -8,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bet, BetStatus } from './entities/bet.entity';
-import { CreateBetDto } from './dto/create-bet.dto';
+import { CreateBetInput } from './inputs/create-bet.input';
 import { UsersService } from '../users/users.service';
 import { EventsService } from '../events/events.service';
 import { EventStatus } from '../events/entities/event.entity';
@@ -21,20 +21,20 @@ export class BetsService {
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => EventsService))
     private readonly eventsService: EventsService,
-  ) {}
+  ) { }
 
-  async create(createBetDto: CreateBetDto): Promise<Bet> {
+  async create(createBetInput: CreateBetInput): Promise<Bet> {
     // Verificar que el usuario existe y tiene saldo suficiente
-    const user = await this.usersService.findOne(createBetDto.userId);
-    
-    if (Number(user.balance) < createBetDto.amount) {
+    const user = await this.usersService.findOne(createBetInput.userId!);
+
+    if (Number(user.balance) < createBetInput.amount) {
       throw new BadRequestException(
-        `Saldo insuficiente. Saldo actual: ${user.balance}, Monto requerido: ${createBetDto.amount}`,
+        `Saldo insuficiente. Saldo actual: ${user.balance}, Monto requerido: ${createBetInput.amount}`,
       );
     }
 
     // Verificar que el evento existe y está abierto
-    const event = await this.eventsService.findOne(createBetDto.eventId);
+    const event = await this.eventsService.findOne(createBetInput.eventId);
 
     if (event.status !== EventStatus.OPEN) {
       throw new BadRequestException('El evento no está disponible para apuestas');
@@ -43,8 +43,8 @@ export class BetsService {
     // Verificar que el usuario no tenga ya una apuesta en este evento
     const existingBet = await this.betRepository.findOne({
       where: {
-        userId: createBetDto.userId,
-        eventId: createBetDto.eventId,
+        userId: createBetInput.userId,
+        eventId: createBetInput.eventId,
         status: BetStatus.PENDING,
       },
     });
@@ -57,28 +57,28 @@ export class BetsService {
 
     // Verificar que la opción seleccionada existe en el evento
     const selectedOption = event.options.find(
-      (option) => option.name === createBetDto.selectedOption,
+      (option) => option.name === createBetInput.selectedOption,
     );
 
     if (!selectedOption) {
       throw new BadRequestException(
-        `La opción '${createBetDto.selectedOption}' no existe en este evento`,
+        `La opción '${createBetInput.selectedOption}' no existe en este evento`,
       );
     }
 
     // Descontar el monto del saldo del usuario
     await this.usersService.updateBalance(
-      createBetDto.userId,
-      -createBetDto.amount,
+      createBetInput.userId!,
+      -createBetInput.amount,
     );
 
     // Crear la apuesta
     const bet = this.betRepository.create({
-      userId: createBetDto.userId,
-      eventId: createBetDto.eventId,
-      selectedOption: createBetDto.selectedOption,
+      userId: createBetInput.userId,
+      eventId: createBetInput.eventId,
+      selectedOption: createBetInput.selectedOption,
       odds: selectedOption.odds,
-      amount: createBetDto.amount,
+      amount: createBetInput.amount,
       status: BetStatus.PENDING,
       profit: 0,
     });
@@ -151,7 +151,7 @@ export class BetsService {
         const profit = Number(bet.amount) * Number(bet.odds);
         bet.status = BetStatus.WON;
         bet.profit = profit;
-        
+
         // Abonar la ganancia al saldo del usuario
         await this.usersService.updateBalance(bet.userId, profit);
       } else {
@@ -166,7 +166,7 @@ export class BetsService {
 
   async updateBetOption(id: string, newOptionName: string): Promise<Bet> {
     const bet = await this.betRepository.findOne({ where: { id } });
-    
+
     if (!bet) {
       throw new NotFoundException(`Apuesta con ID '${id}' no encontrada`);
     }

@@ -1,17 +1,17 @@
-import { 
-  Injectable, 
-  UnauthorizedException, 
+import {
+  Injectable,
+  UnauthorizedException,
   ConflictException,
   InternalServerErrorException,
-  NotFoundException 
+  NotFoundException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { LoginInput } from './inputs/login.input';
+import { RegisterInput } from './inputs/register.input';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -20,16 +20,16 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(registerDto: RegisterDto) {
-    const { password, ...userData } = registerDto;
-    
+  async register(registerInput: RegisterInput) {
+    const { password, ...userData } = registerInput;
+
     try {
       const user = this.userRepository.create({
         ...userData,
         password: this.encryptPassword(password),
-        roles: registerDto.roles ?? ['user'],
+        roles: registerInput.roles ?? ['user'],
       });
 
       await this.userRepository.save(user);
@@ -44,18 +44,18 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {
-    const { username, password } = loginDto;
-    
+  async login(loginInput: LoginInput) {
+    const { username, password } = loginInput;
+
     const user = await this.userRepository.findOne({
       where: { username },
-      select: { 
-        id: true, 
-        username: true, 
-        password: true, 
-        roles: true, 
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        roles: true,
         isActive: true,
-        balance: true 
+        balance: true
       },
     });
 

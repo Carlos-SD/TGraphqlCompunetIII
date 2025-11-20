@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsService } from './events.service';
-import { EventsController } from './events.controller';
+
 import { EventsResolver } from './events.resolver';
 import { Event } from './entities/event.entity';
 import { EventOption } from './entities/event-option.entity';
@@ -17,7 +17,7 @@ import { AuthModule } from '../auth/auth.module';
     AuthModule,
   ],
   providers: [EventsService, EventsResolver],
-  controllers: [EventsController],
+  controllers: [],
   exports: [EventsService],
 })
-export class EventsModule {}
+export class EventsModule { }
