@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import { User } from '../../auth/entities/user.entity';
 import { Event } from '../../events/entities/event.entity';
 
@@ -16,8 +17,10 @@ export enum BetStatus {
   LOST = 'lost',
 }
 
+@ObjectType()
 @Entity('bets')
 export class Bet {
+  @Field(() => ID, { description: 'ID único de la apuesta' })
   @ApiProperty({
     description: 'ID único de la apuesta',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -25,6 +28,7 @@ export class Bet {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field(() => String, { description: 'Opción seleccionada para la apuesta' })
   @ApiProperty({
     description: 'Opción seleccionada para la apuesta',
     example: 'Argentina gana',
@@ -36,6 +40,7 @@ export class Bet {
   })
   selectedOption: string;
 
+  @Field(() => Float, { description: 'Cuota aplicada al momento de realizar la apuesta' })
   @ApiProperty({
     description: 'Cuota aplicada al momento de realizar la apuesta',
     example: 2.50,
@@ -47,6 +52,7 @@ export class Bet {
   })
   odds: number;
 
+  @Field(() => Float, { description: 'Monto apostado' })
   @ApiProperty({
     description: 'Monto apostado',
     example: 100.00,
@@ -59,6 +65,7 @@ export class Bet {
   })
   amount: number;
 
+  @Field(() => String, { description: 'Estado de la apuesta' })
   @ApiProperty({
     description: 'Estado de la apuesta',
     enum: BetStatus,
@@ -72,6 +79,7 @@ export class Bet {
   })
   status: BetStatus;
 
+  @Field(() => Float, { description: 'Ganancia obtenida (negativo si perdió)' })
   @ApiProperty({
     description: 'Ganancia obtenida (negativo si perdió)',
     example: 150.00,
@@ -85,6 +93,7 @@ export class Bet {
   })
   profit: number;
 
+  @Field(() => Date, { description: 'Fecha de creación de la apuesta' })
   @ApiProperty({
     description: 'Fecha de creación de la apuesta',
     example: '2024-01-15T10:30:00Z',
@@ -92,6 +101,7 @@ export class Bet {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field(() => User, { description: 'Usuario que realizó la apuesta' })
   @ApiProperty({
     description: 'Usuario que realizó la apuesta',
     type: () => User,
@@ -100,6 +110,7 @@ export class Bet {
   @JoinColumn({ name: 'userId' })
   user: User;
 
+  @Field(() => String, { description: 'ID del usuario que realizó la apuesta' })
   @ApiProperty({
     description: 'ID del usuario que realizó la apuesta',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -107,6 +118,7 @@ export class Bet {
   @Column()
   userId: string;
 
+  @Field(() => Event, { description: 'Evento sobre el que se realizó la apuesta' })
   @ApiProperty({
     description: 'Evento sobre el que se realizó la apuesta',
     type: () => Event,
@@ -115,6 +127,7 @@ export class Bet {
   @JoinColumn({ name: 'eventId' })
   event: Event;
 
+  @Field(() => String, { description: 'ID del evento sobre el que se apostó' })
   @ApiProperty({
     description: 'ID del evento sobre el que se apostó',
     example: '550e8400-e29b-41d4-a716-446655440000',

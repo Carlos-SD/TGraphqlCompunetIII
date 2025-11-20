@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { EventOption } from './event-option.entity';
 import { Bet } from '../../bets/entities/bet.entity';
 
@@ -15,8 +16,10 @@ export enum EventStatus {
   CLOSED = 'closed',
 }
 
+@ObjectType()
 @Entity('events')
 export class Event {
+  @Field(() => ID, { description: 'ID único del evento' })
   @ApiProperty({
     description: 'ID único del evento',
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -24,6 +27,7 @@ export class Event {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field(() => String, { description: 'Nombre del evento' })
   @ApiProperty({
     description: 'Nombre del evento',
     example: 'Final Copa del Mundo 2024',
@@ -35,6 +39,7 @@ export class Event {
   })
   name: string;
 
+  @Field(() => String, { description: 'Descripción detallada del evento', nullable: true })
   @ApiProperty({
     description: 'Descripción detallada del evento',
     example: 'Partido final entre Argentina y Brasil',
@@ -46,6 +51,7 @@ export class Event {
   })
   description: string;
 
+  @Field(() => String, { description: 'Estado actual del evento' })
   @ApiProperty({
     description: 'Estado actual del evento',
     enum: EventStatus,
@@ -59,6 +65,7 @@ export class Event {
   })
   status: EventStatus;
 
+  @Field(() => String, { description: 'Resultado final del evento', nullable: true })
   @ApiProperty({
     description: 'Resultado final del evento',
     example: 'Argentina',
@@ -70,6 +77,7 @@ export class Event {
   })
   finalResult: string;
 
+  @Field(() => Date, { description: 'Fecha de creación del evento' })
   @ApiProperty({
     description: 'Fecha de creación del evento',
     example: '2024-01-15T10:30:00Z',
@@ -77,6 +85,7 @@ export class Event {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field(() => Date, { description: 'Fecha de última actualización del evento' })
   @ApiProperty({
     description: 'Fecha de última actualización del evento',
     example: '2024-01-20T15:45:00Z',
@@ -84,6 +93,7 @@ export class Event {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Field(() => [EventOption], { description: 'Opciones de apuesta disponibles para el evento' })
   @ApiProperty({
     description: 'Opciones de apuesta disponibles para el evento',
     type: () => [EventOption],
@@ -91,6 +101,7 @@ export class Event {
   @OneToMany(() => EventOption, (option) => option.event, { cascade: true })
   options: EventOption[];
 
+  @Field(() => [Bet], { description: 'Apuestas realizadas en este evento' })
   @ApiProperty({
     description: 'Apuestas realizadas en este evento',
     type: () => [Bet],

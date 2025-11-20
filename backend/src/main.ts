@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   const allowedOrigins = [
     'http://localhost:3001',
     'http://localhost:3000',
@@ -22,22 +22,22 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Permitir requests sin origin (como Postman, mobile apps, etc.)
       if (!origin) return callback(null, true);
-      
+
       // Permitir todos los dominios de Vercel (preview deployments, etc.)
       if (origin.includes('.vercel.app')) {
         return callback(null, true);
       }
-      
+
       // Permitir si está en la lista de orígenes permitidos
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      
+
       // En desarrollo, permitir todos los orígenes
       if (process.env.NODE_ENV !== 'production') {
         return callback(null, true);
       }
-      
+
       // En producción, permitir todos los orígenes temporalmente para debugging
       // TODO: Restringir a orígenes específicos en producción
       return callback(null, true);
@@ -48,14 +48,14 @@ async function bootstrap() {
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
-  
+
   // Health check endpoint for Render (después de CORS)
   app.getHttpAdapter().get('/', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
-  
+
   app.setGlobalPrefix('api');
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -90,8 +90,8 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: http://0.0.0.0:${port}/api`);
-  console.log(`Swagger documentation: http://0.0.0.0:${port}/docs`);
-  console.log(`GraphQL Playground: http://0.0.0.0:${port}/graphql`);
+  console.log(`Application is running on: http://localhost:${port}/api`);
+  console.log(`Swagger documentation: http://localhost:${port}/docs`);
+  console.log(`GraphQL Playground: http://localhost:${port}/graphql`);
 }
 bootstrap();
