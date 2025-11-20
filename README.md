@@ -28,6 +28,35 @@ Se ha iniciado la transición de una arquitectura REST a GraphQL para mejorar la
   - `removeUser`: Eliminación lógica/física (Admin).
   - `getUserBalance`: Consulta de saldo.
 
+#### 5. Events Module
+- **Resolver Completo**: Gestión de eventos deportivos para apuestas.
+- **Seguridad**: Operaciones de creación, actualización, cierre y eliminación protegidas para rol ADMIN.
+- **Operaciones**:
+  - `createEvent`: Crear nuevos eventos con opciones de apuesta (Admin).
+  - `events`: Listar todos los eventos.
+  - `eventsOpen`: Listar eventos abiertos disponibles para apostar.
+  - `event`: Obtener un evento por ID.
+  - `updateEvent`: Actualizar información del evento (Admin).
+  - `closeEvent`: Cerrar evento y procesar resultados (Admin).
+  - `removeEvent`: Eliminar un evento (Admin).
+
+#### 6. Bets Module
+- **Resolver Completo**: Sistema de apuestas con validaciones y seguridad.
+- **Seguridad**: Control de acceso basado en propiedad y roles.
+- **Operaciones**:
+  - `createBet`: Crear una nueva apuesta (usuario autenticado).
+  - `bets`: Listar todas las apuestas (Admin).
+  - `bet`: Obtener una apuesta por ID (propietario o Admin).
+  - `betsByUser`: Obtener apuestas de un usuario específico (propietario o Admin).
+  - `myBets`: Obtener las apuestas del usuario autenticado.
+  - `betsByEvent`: Obtener apuestas de un evento específico (Admin).
+  - `removeBet`: Eliminar una apuesta pendiente (propietario o Admin).
+- **Validaciones**:
+  - Verificación de saldo suficiente.
+  - Validación de estado del evento (solo eventos abiertos).
+  - Prevención de apuestas duplicadas por evento.
+  - Solo se pueden eliminar apuestas pendientes.
+
 ### Stack Tecnológico
 - **NestJS + GraphQL**: Framework principal.
 - **Apollo Server**: Servidor GraphQL robusto que facilita la definición de esquemas, la ejecución de consultas y proporciona herramientas esenciales como el Playground para pruebas y documentación interactiva. (@nestjs/apollo)
