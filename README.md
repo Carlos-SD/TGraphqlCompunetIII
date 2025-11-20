@@ -1,5 +1,11 @@
 # TGraphqlCompunetIII
 
+## 🚀 Endpoint GraphQL
+
+El backend está desplegado en Render y el endpoint GraphQL está disponible en:
+
+**https://tgraphqlcompunetiii.onrender.com/graphql**
+
 ## GraphQL Migration
 Se ha iniciado la transición de una arquitectura REST a GraphQL para mejorar la flexibilidad y eficiencia en el consumo de datos.
 
