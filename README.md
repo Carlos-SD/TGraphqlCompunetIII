@@ -57,6 +57,14 @@ Se ha iniciado la transición de una arquitectura REST a GraphQL para mejorar la
   - Prevención de apuestas duplicadas por evento.
   - Solo se pueden eliminar apuestas pendientes.
 
+### Tests de Postman
+Se ha creado una colección completa de tests GraphQL en `backend/postman/`:
+- **19 tests** organizados en 5 módulos: Seed, Auth, Users, Events, Bets.
+- **Variables de entorno**: `url_graphql`, tokens de autenticación, y IDs de recursos se manejan automáticamente.
+- **Flujos completos**: Pruebas de CRUD, autenticación, autorización y validaciones de negocio.
+
+**Uso**: Importar `Sports Bet GraphQL.postman_collection.json` y `Sports Bet GraphQL.postman_environment.json` en Postman.
+
 ### Stack Tecnológico
 - **NestJS + GraphQL**: Framework principal.
 - **Apollo Server**: Servidor GraphQL robusto que facilita la definición de esquemas, la ejecución de consultas y proporciona herramientas esenciales como el Playground para pruebas y documentación interactiva. (@nestjs/apollo)
